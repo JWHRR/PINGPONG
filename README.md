@@ -33,7 +33,7 @@ npm run dev                     # http://localhost:3000
 | Variable | Where to find it | Required |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL | yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API → `anon` `public` key | yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` (or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) | Supabase → Project Settings → API Keys → `anon` / publishable key | yes |
 | `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` | an admin account, only for `npm run e2e:live` | no |
 
 No service-role key is needed. All writes run with the signed-in administrator's token, so the database's RLS policies are enforced on every request.

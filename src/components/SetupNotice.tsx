@@ -21,7 +21,7 @@ export function SetupNotice() {
             <>
               <div className="font-semibold">Database not connected</div>
               <div className="mt-0.5">
-                Set <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> (see README → Installation),
+                Set <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> (or <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>) (see README → Installation),
                 then redeploy.
               </div>
             </>
