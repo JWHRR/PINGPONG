@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-slate-50 text-navy-900 antialiased;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch-500 focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-navy-900 text-white hover:bg-navy-800 active:bg-navy-950;
+  }
+  .btn-accent {
+    @apply btn bg-pitch-600 text-white hover:bg-pitch-700;
+  }
+  .btn-secondary {
+    @apply btn border border-slate-200 bg-white text-navy-800 hover:border-slate-300 hover:bg-slate-50;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700;
+  }
+  .btn-ghost {
+    @apply btn text-navy-700 hover:bg-slate-100;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-navy-900 shadow-sm
+      placeholder:text-slate-400 focus:border-pitch-500 focus:outline-none focus:ring-2 focus:ring-pitch-500/20
+      disabled:bg-slate-50 disabled:text-slate-500;
+  }
+  .label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .eyebrow {
+    @apply font-display text-xs font-semibold uppercase tracking-[0.18em];
+  }
+  .bracket-canvas {
+    background-image: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.25) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.trophy-glow {
+  background: radial-gradient(closest-side, rgb(245 185 53 / 0.45), transparent 70%);
+}
