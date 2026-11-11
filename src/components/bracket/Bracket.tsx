@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { roundName, shortRoundName } from '@/lib/draw';
 import { formatDate } from '@/lib/format';
 import type { Category, Draw, Match, Participant, Venue } from '@/lib/types';
-import { cx } from '../ui';
+import { LevelLetter, cx } from '../ui';
 import { CARD_H, CARD_W, MatchCard } from './MatchCard';
 
 const GAP_Y = 20;
@@ -39,6 +39,9 @@ export function Legend({ className }: { className?: string }) {
       el: <span className="flex h-4 w-4 items-center justify-center rounded bg-pitch-600 text-[9px] font-bold text-white">2</span>,
     },
     { label: 'Eliminated', el: <span className="text-xs text-slate-400 line-through">Name</span> },
+    { label: 'Advanced', el: <LevelLetter level="advanced" /> },
+    { label: 'Intermediate', el: <LevelLetter level="intermediate" /> },
+    { label: 'Beginner', el: <LevelLetter level="beginner" /> },
   ];
   return (
     <div className={cx('flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600', className)}>

@@ -7,17 +7,17 @@ Sign in at **/admin** with your administrator email and password. The dashboard 
 ### 1. Tournament info
 Under *Tournament info*, set the tournament name, tagline, the titles of the Table Tennis and Badminton events, start and end dates, location, organiser and description. These appear on the home page straight away.
 
-### 2. Categories (one bracket each)
-A category is a **sport + discipline + level**, for example *Table Tennis Singles — Beginner* or *Badminton Doubles — Open*. Each category gets its own separate bracket. Create, rename or reorder them under *Categories*. You can only delete a category that has no participants (typing its name confirms the delete).
+### 2. Tournaments (one bracket each)
+By default there are two: **Table Tennis** and **Badminton**. Each has one knockout bracket containing every player, whatever their level. You can add more under *Categories* (for example a Badminton Doubles event) if you need them. Create, rename or reorder them under *Categories*. You can only delete a category that has no participants (typing its name confirms the delete).
 
 ### 3. Courts & tables
 Add every playing area, for example *Table 1–3* and *Court 1–2*, and tag each with its sport. Inactive courts and tables can't be assigned to matches.
 
 ### 4. Register participants
 Under *Participants* → **Register participant**:
-- Choose the category and level.
+- Choose the tournament and the player's **level**: Beginner, Intermediate or Advanced. The level decides seeding (see *Draws*).
 - Singles: the player's name. Doubles: both partners' names. The display name defaults to "Player 1 / Player 2".
-- Club, notes and an optional **seed** (1 = strongest). Seeded players are kept apart in the draw and receive the BYEs first.
+- Club, notes and an optional **manual seed** (1 = strongest). Manual seeds take priority over levels, but you rarely need them.
 - **Save & add another** speeds up bulk entry.
 
 The system rejects duplicate names, a player entered twice in the same category (including inside a doubles pair) and duplicate seeds.
@@ -28,7 +28,14 @@ To move a player to a different level, edit them and change the category. You ca
 
 Under *Draws*, pick the category:
 
-1. **Generate random draw.** This creates a **preview** that only admins can see. The bracket size is the next power of two, and BYEs go to the top seeded positions and are spread evenly across both halves. A BYE is never paired with another BYE.
+1. **Generate random draw.** This creates a **preview** that only admins can see.
+
+   **How the draw stays fair:** players are ranked Advanced → Intermediate → Beginner and drawn randomly *within* each level. They are then placed with the standard seeding layout used by professional tournaments, so:
+   - the 2 strongest players are in opposite halves and can only meet in the **final**;
+   - the top 4 are in different quarters and can only meet in the **semifinals**; the top 8 can only meet in the quarterfinals;
+   - BYEs (when the player count isn't 8, 16, 32…) go to the strongest players first and are spread evenly. A BYE never meets a BYE.
+
+   Each card in the bracket shows a small **A / I / B** letter for the player's level, so everyone can see the draw is balanced.
 2. Review the preview. **Re-shuffle preview** draws again; **Discard** deletes it.
 3. **Publish draw.** The bracket becomes public and results can be entered.
 

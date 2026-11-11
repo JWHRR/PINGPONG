@@ -1,14 +1,11 @@
--- Optional starter configuration: competition categories and courts/tables.
+-- Optional starter configuration: one Table Tennis and one Badminton tournament,
+-- plus courts/tables. Each player has a level (beginner / intermediate / advanced)
+-- that is used to seed the draw so the strongest players meet as late as possible.
 -- No participants or results are seeded — register real players in the admin dashboard.
 
 insert into public.categories (sport, discipline, level, name, sort_order) values
-  ('table_tennis', 'singles', 'Beginner',     'Table Tennis Singles — Beginner',     10),
-  ('table_tennis', 'singles', 'Intermediate', 'Table Tennis Singles — Intermediate', 11),
-  ('table_tennis', 'singles', 'Advanced',     'Table Tennis Singles — Advanced',     12),
-  ('badminton',    'singles', 'Beginner',     'Badminton Singles — Beginner',        20),
-  ('badminton',    'singles', 'Intermediate', 'Badminton Singles — Intermediate',    21),
-  ('badminton',    'singles', 'Advanced',     'Badminton Singles — Advanced',        22),
-  ('badminton',    'doubles', 'Open',         'Badminton Doubles — Open',            30)
+  ('table_tennis', 'singles', 'Open', 'Table Tennis', 10),
+  ('badminton',    'singles', 'Open', 'Badminton',    20)
 on conflict (sport, discipline, level) do nothing;
 
 insert into public.venues (name, sport) values

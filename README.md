@@ -3,6 +3,7 @@
 A complete tournament website and management platform for knockout competitions in **Table Tennis** and **Badminton** (singles and doubles, with separate brackets for every competition level).
 
 - **Public site**: Home, Participants (search, filters, profiles and match history), an interactive **knockout bracket** (zoom, pan, full screen, mobile-friendly), and a **Live Match Center**.
+- **Fair, level-seeded draws**: every player has a level (Beginner / Intermediate / Advanced). The draw places the strongest players apart, so the top two can only meet in the final and the top four only in the semifinals; it is random within each level.
 - **Admin dashboard** (protected): register participants, manage categories and levels, generate, preview and publish random draws, schedule matches on courts and tables, enter live scores, validate results, handle walkovers and corrections, and declare champions. Every action goes into an audit log.
 - **Real backend**: Supabase Postgres with Row Level Security, Supabase Auth, Next.js API routes, and Realtime updates on every page.
 
@@ -42,7 +43,8 @@ No service-role key is needed. All writes run with the signed-in administrator's
 
 1. Create a project at supabase.com and wait for it to finish provisioning.
 2. Open **SQL Editor**, paste the whole of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
-3. (Optional) Run [`supabase/seed.sql`](supabase/seed.sql) to create the standard categories (TT Singles Beginner, Intermediate and Advanced; Badminton Singles at the same three levels; Badminton Doubles Open) and five courts/tables. It does **not** create any players.
+3. Run [`supabase/seed.sql`](supabase/seed.sql) to create the two tournaments (**Table Tennis** and **Badminton**) and five courts/tables. It does **not** create any players.
+   - Already ran the older seed with separate Beginner/Intermediate/Advanced categories? Run [`supabase/migrations/002_one_tournament_per_sport.sql`](supabase/migrations/002_one_tournament_per_sport.sql) once instead.
 4. **Create the administrator:**
    - Authentication → Users → **Add user** → *Create new user* (email + password, tick *Auto Confirm User*).
    - In the SQL Editor run:

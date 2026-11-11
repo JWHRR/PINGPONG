@@ -4,7 +4,7 @@ import { Check, Clock, MapPin } from 'lucide-react';
 import { countGames } from '@/lib/scoring';
 import { formatTime } from '@/lib/format';
 import type { Match, Participant, Slot } from '@/lib/types';
-import { STATUS_STYLE, cx } from '../ui';
+import { LevelLetter, STATUS_STYLE, cx } from '../ui';
 
 export const CARD_W = 272;
 export const CARD_H = 92;
@@ -58,6 +58,10 @@ function PlayerRow({
     >
       {p?.seed ? (
         <span className="w-5 shrink-0 text-center text-[10px] font-bold text-navy-400">[{p.seed}]</span>
+      ) : p?.level ? (
+        <span className="flex w-5 shrink-0 justify-center">
+          <LevelLetter level={p.level} />
+        </span>
       ) : (
         <span className="w-5 shrink-0" />
       )}

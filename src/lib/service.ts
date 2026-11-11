@@ -13,10 +13,12 @@ import type {
   Game,
   Match,
   Participant,
+  PlayerLevel,
   Settings,
   Sport,
   Venue,
 } from './types';
+import { PLAYER_LEVELS } from './types';
 
 export type Table = 'settings' | 'categories' | 'participants' | 'venues' | 'draws' | 'matches' | 'audit_log';
 
@@ -221,10 +223,13 @@ async function checkParticipantFields(ctx: Ctx, input: Partial<Participant>, cat
     if (clash) throw bad(`Player "${clash}" is already entered in ${category.name} (${o.name})`);
   }
   if (seed !== null && others.some((p) => p.seed === seed)) throw bad(`Seed ${seed} is already used in this category`);
+  const level = (input.level ?? 'beginner') as PlayerLevel;
+  if (!PLAYER_LEVELS.includes(level)) throw bad('Level must be beginner, intermediate or advanced');
   return {
     name,
     player1,
     player2,
+    level,
     club: str(input.club, 'Club', { required: false, max: 80 }),
     seed,
     notes: str(input.notes, 'Notes', { required: false, max: 500 }),
@@ -254,6 +259,9 @@ export async function updateParticipant(ctx: Ctx, id: string, input: Partial<Par
   }
   if (inDraw && input.seed !== undefined && (input.seed ?? null) !== p.seed) {
     throw bad('Seeding cannot change after the draw is generated. Regenerate the draw to apply new seeds.');
+  }
+  if (inDraw && input.level !== undefined && input.level !== p.level) {
+    throw bad('The level is used for seeding and cannot change after the draw is generated. Regenerate the draw to apply it.');
   }
   const fields = await checkParticipantFields(ctx, { ...p, ...input }, category, id);
   const updated = await ctx.repo.update<Participant>('participants', id, { ...fields, category_id: targetCategoryId });

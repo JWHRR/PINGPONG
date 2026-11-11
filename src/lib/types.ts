@@ -4,6 +4,16 @@ export type CategoryStatus = 'registration' | 'draw_preview' | 'in_progress' | '
 export type DrawStatus = 'preview' | 'published' | 'superseded';
 export type MatchStatus = 'pending' | 'scheduled' | 'in_progress' | 'completed' | 'walkover' | 'bye';
 export type Slot = 'a' | 'b';
+export type PlayerLevel = 'advanced' | 'intermediate' | 'beginner';
+
+export const PLAYER_LEVELS: PlayerLevel[] = ['advanced', 'intermediate', 'beginner'];
+export const LEVEL_LABEL: Record<PlayerLevel, string> = {
+  advanced: 'Advanced',
+  intermediate: 'Intermediate',
+  beginner: 'Beginner',
+};
+/** Lower = stronger. Used to seed the draw. */
+export const LEVEL_RANK: Record<PlayerLevel, number> = { advanced: 0, intermediate: 1, beginner: 2 };
 
 export interface Game {
   a: number;
@@ -45,6 +55,7 @@ export interface Participant {
   player2: string | null;
   club: string | null;
   seed: number | null;
+  level: PlayerLevel;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -64,6 +75,7 @@ export interface OriginalDrawSlot {
   participant_id: string | null;
   name: string | null;
   seed: number | null;
+  level?: PlayerLevel | null;
 }
 
 export interface OriginalDraw {

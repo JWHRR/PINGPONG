@@ -4,8 +4,9 @@ import { Pencil, Plus, Search, Trash2, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { adminApi, useAdminAction } from '@/lib/adminApi';
 import { useTournament } from '@/lib/data';
-import type { Participant } from '@/lib/types';
-import { EmptyState, Modal, SportIcon, Spinner, useConfirm } from '../ui';
+import type { Participant, PlayerLevel } from '@/lib/types';
+import { LEVEL_LABEL, LEVEL_RANK, PLAYER_LEVELS } from '@/lib/types';
+import { EmptyState, LevelBadge, Modal, SportIcon, Spinner, useConfirm } from '../ui';
 
 interface Form {
   id?: string;
@@ -15,10 +16,20 @@ interface Form {
   name: string;
   club: string;
   seed: string;
+  level: PlayerLevel;
   notes: string;
 }
 
-const empty = (category_id: string): Form => ({ category_id, player1: '', player2: '', name: '', club: '', seed: '', notes: '' });
+const empty = (category_id: string, level: PlayerLevel = 'beginner'): Form => ({
+  category_id,
+  player1: '',
+  player2: '',
+  name: '',
+  club: '',
+  seed: '',
+  level,
+  notes: '',
+});
 
 export function ParticipantsAdmin({ initialCategory }: { initialCategory: string | null }) {
   const { participants, categories, categoriesById } = useTournament();
@@ -34,7 +45,11 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
       participants
         .filter((p) => filter === 'all' || p.category_id === filter)
         .filter((p) => !q.trim() || [p.name, p.club].some((s) => s?.toLowerCase().includes(q.trim().toLowerCase())))
-        .sort((a, b) => (a.category_id === b.category_id ? (a.seed ?? 999) - (b.seed ?? 999) || a.name.localeCompare(b.name) : 0)),
+        .sort((a, b) =>
+          a.category_id === b.category_id
+            ? (a.seed ?? 999) - (b.seed ?? 999) || LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.name.localeCompare(b.name)
+            : 0,
+        ),
     [participants, filter, q],
   );
 
@@ -52,6 +67,7 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
       name: form.name || null,
       club: form.club || null,
       seed: form.seed ? Number(form.seed) : null,
+      level: form.level,
       notes: form.notes || null,
     };
     try {
@@ -61,7 +77,7 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
       return;
     }
     await run('refresh', async () => undefined, form.id ? 'Participant updated' : `${form.player1} registered`);
-    setForm(addAnother ? empty(form.category_id) : null);
+    setForm(addAnother ? empty(form.category_id, form.level) : null);
   };
 
   const remove = async (p: Participant) => {
@@ -115,7 +131,8 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-semibold">Name</th>
-                <th className="px-4 py-3 font-semibold">Category</th>
+                <th className="px-4 py-3 font-semibold">Tournament</th>
+                <th className="px-4 py-3 font-semibold">Level</th>
                 <th className="px-4 py-3 font-semibold">Club</th>
                 <th className="px-4 py-3 text-center font-semibold">Seed</th>
                 <th className="px-4 py-3" />
@@ -136,6 +153,9 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
                         {c?.name}
                       </span>
                     </td>
+                    <td className="px-4 py-2.5">
+                      <LevelBadge level={p.level} />
+                    </td>
                     <td className="px-4 py-2.5 text-slate-600">{p.club}</td>
                     <td className="px-4 py-2.5 text-center font-semibold text-navy-600">{p.seed ?? ''}</td>
                     <td className="px-4 py-2.5">
@@ -152,6 +172,7 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
                               name: p.name,
                               club: p.club ?? '',
                               seed: p.seed ? String(p.seed) : '',
+                              level: p.level,
                               notes: p.notes ?? '',
                             });
                           }}
@@ -195,7 +216,7 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
         {form && (
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => save(e)}>
             <div className="sm:col-span-2">
-              <label className="label">Category &amp; level</label>
+              <label className="label">Tournament</label>
               <select className="input" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -227,8 +248,27 @@ export function ParticipantsAdmin({ initialCategory }: { initialCategory: string
               <label className="label">Club / school</label>
               <input className="input" value={form.club} onChange={(e) => setForm({ ...form, club: e.target.value })} />
             </div>
+            <div className="sm:col-span-2">
+              <label className="label">Level (used to seed the draw)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {PLAYER_LEVELS.map((l) => (
+                  <button
+                    type="button"
+                    key={l}
+                    onClick={() => setForm({ ...form, level: l })}
+                    className={
+                      form.level === l
+                        ? 'rounded-xl border-2 border-navy-900 bg-navy-900 px-3 py-2 text-sm font-semibold text-white'
+                        : 'rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-navy-700 hover:border-slate-300'
+                    }
+                  >
+                    {LEVEL_LABEL[l]}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div>
-              <label className="label">Seed (optional)</label>
+              <label className="label">Manual seed (optional)</label>
               <input className="input" type="number" min={1} max={64} value={form.seed} onChange={(e) => setForm({ ...form, seed: e.target.value })} />
             </div>
             <div className="sm:col-span-2">

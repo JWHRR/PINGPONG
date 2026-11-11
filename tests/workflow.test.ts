@@ -42,6 +42,7 @@ describe('end-to-end tournament workflow', () => {
           player1: `Player ${i}`,
           club: i % 2 ? 'Club A' : 'Club B',
           seed: i <= 2 ? i : null,
+          level: i <= 4 ? 'advanced' : i <= 8 ? 'intermediate' : 'beginner',
         }),
       );
     }

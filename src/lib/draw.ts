@@ -1,6 +1,7 @@
 import type { OriginalDraw, Participant } from './types';
+import { LEVEL_RANK } from './types';
 
-export const DRAW_ALGORITHM = 'single-elimination/standard-seed-order/v1';
+export const DRAW_ALGORITHM = 'single-elimination/level-seeded/standard-seed-order/v2';
 
 /** Deterministic PRNG (mulberry32) so a stored seed reproduces the draw exactly. */
 export function mulberry32(seed: number): () => number {
@@ -91,12 +92,17 @@ export interface DrawPlan {
   matches: PlannedMatch[];
 }
 
-export type DrawEntrant = Pick<Participant, 'id' | 'name' | 'seed'>;
+export type DrawEntrant = Pick<Participant, 'id' | 'name' | 'seed'> & { level?: Participant['level'] | null };
 
 /**
  * Generate a single-elimination draw from the registered participants.
- * Seeded participants (seed 1, 2, …) take the seed positions; everyone else is
- * shuffled randomly into the remaining positions. BYEs fill the leftover positions.
+ * Seed numbers are assigned by strength:
+ *   1. manual seeds (1, 2, 3 …) if the organiser set any,
+ *   2. then every Advanced player, then Intermediate, then Beginner —
+ *      shuffled randomly *within* each level (a fair draw among equals).
+ * The standard seed order then spreads the strongest players across the bracket,
+ * so the two strongest can only meet in the final, the top four only in the
+ * semifinals, etc. BYEs go to the strongest players first.
  */
 export function generateDraw(entrants: DrawEntrant[], rngSeed: string, generatedAt = new Date().toISOString()): DrawPlan {
   if (entrants.length < 2) throw new Error('At least 2 participants are required to generate a draw');
@@ -115,12 +121,19 @@ export function generateDraw(entrants: DrawEntrant[], rngSeed: string, generated
 
   const rng = mulberry32(seedFromString(rngSeed));
   const seeded = entrants.filter((p) => p.seed != null).sort((x, y) => x.seed! - y.seed!);
+  const rank = (p: DrawEntrant) => (p.level ? LEVEL_RANK[p.level] : LEVEL_RANK.beginner);
   const unseeded = entrants.filter((p) => p.seed == null).sort((x, y) => x.id.localeCompare(y.id));
-  for (let i = unseeded.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [unseeded[i], unseeded[j]] = [unseeded[j], unseeded[i]];
+  const tiers = [...new Set(unseeded.map(rank))].sort((x, y) => x - y);
+  const ordered: DrawEntrant[] = [];
+  for (const t of tiers) {
+    const tier = unseeded.filter((p) => rank(p) === t);
+    for (let i = tier.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [tier[i], tier[j]] = [tier[j], tier[i]];
+    }
+    ordered.push(...tier);
   }
-  const bySeedNumber = [...seeded, ...unseeded]; // index 0 = seed number 1
+  const bySeedNumber = [...seeded, ...ordered]; // index 0 = seed number 1
 
   const size = nextPowerOfTwo(entrants.length);
   const rounds = Math.log2(size);
@@ -133,6 +146,7 @@ export function generateDraw(entrants: DrawEntrant[], rngSeed: string, generated
       participant_id: p?.id ?? null,
       name: p?.name ?? null,
       seed: p?.seed ?? null,
+      level: p?.level ?? null,
     };
   });
 

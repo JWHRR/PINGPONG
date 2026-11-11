@@ -64,12 +64,14 @@ export function CategoriesAdmin({ go }: { go: (t: AdminTab, id?: string) => void
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-slate-500">Each category (sport · discipline · level) has its own separate knockout bracket.</p>
+        <p className="text-sm text-slate-500">
+          Each tournament has its own knockout bracket. Player levels (Beginner / Intermediate / Advanced) are set per player and used to seed the draw.
+        </p>
         <button
           className="btn-accent shrink-0"
           onClick={() => {
             setError(null);
-            setForm({ sport: 'table_tennis', discipline: 'singles', level: '', name: '', sort_order: String((categories.length + 1) * 10) });
+            setForm({ sport: 'table_tennis', discipline: 'singles', level: 'Open', name: '', sort_order: String((categories.length + 1) * 10) });
           }}
         >
           <Plus className="h-4 w-4" /> New category
@@ -155,8 +157,8 @@ export function CategoriesAdmin({ go }: { go: (t: AdminTab, id?: string) => void
               </select>
             </div>
             <div>
-              <label className="label">Competition level</label>
-              <input className="input" required placeholder="Beginner / Intermediate / Advanced / Open…" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} />
+              <label className="label">Edition / division</label>
+              <input className="input" required placeholder="Open" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} />
             </div>
             <div>
               <label className="label">Display order</label>

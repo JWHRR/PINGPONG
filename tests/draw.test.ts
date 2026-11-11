@@ -78,3 +78,68 @@ describe('generateDraw', () => {
     expect(() => generateDraw(dup, 's')).toThrow(/Duplicate/);
   });
 });
+
+describe('level-based seeding (strongest players meet as late as possible)', () => {
+  type L = 'advanced' | 'intermediate' | 'beginner';
+  const field = (adv: number, inter: number, beg: number) => {
+    const out: { id: string; name: string; seed: null; level: L }[] = [];
+    const add = (n: number, level: L) => {
+      for (let i = 0; i < n; i++) out.push({ id: `${level[0]}${i}`, name: `${level} ${i}`, seed: null, level });
+    };
+    add(beg, 'beginner');
+    add(inter, 'intermediate');
+    add(adv, 'advanced');
+    return out;
+  };
+  /** Round in which two bracket positions can first meet. */
+  const meetRound = (p1: number, p2: number) => {
+    let r = 1;
+    while (Math.floor(p1 / 2 ** r) !== Math.floor(p2 / 2 ** r)) r++;
+    return r;
+  };
+  const positions = (plan: ReturnType<typeof generateDraw>, prefix: string) =>
+    plan.original.slots.filter((s) => s.participant_id?.startsWith(prefix)).map((s) => s.position);
+
+  for (let trial = 0; trial < 25; trial++) {
+    it(`two advanced players can only meet in the final (random draw #${trial})`, () => {
+      const plan = generateDraw(field(2, 5, 9), `t${trial}`);
+      const [x, y] = positions(plan, 'a');
+      expect(meetRound(x, y)).toBe(plan.rounds);
+    });
+    it(`four advanced players are in four different quarters (random draw #${trial})`, () => {
+      const plan = generateDraw(field(4, 6, 10), `q${trial}`);
+      const pos = positions(plan, 'a');
+      for (let i = 0; i < pos.length; i++)
+        for (let j = i + 1; j < pos.length; j++) expect(meetRound(pos[i], pos[j])).toBeGreaterThanOrEqual(plan.rounds - 1);
+    });
+  }
+
+  it('BYEs go to advanced players first, then intermediate', () => {
+    const plan = generateDraw(field(2, 3, 6), 'byes'); // 11 players → 16-draw, 5 BYEs
+    const r1 = plan.matches.filter((m) => m.round === 1 && m.bye).map((m) => m.winner_id!);
+    expect(r1.filter((id) => id.startsWith('a')).length).toBe(2);
+    expect(r1.filter((id) => id.startsWith('i')).length).toBe(3);
+    expect(r1.some((id) => id.startsWith('b'))).toBe(false);
+  });
+
+  it('advanced players never face each other in the first round when avoidable', () => {
+    for (let t = 0; t < 30; t++) {
+      const plan = generateDraw(field(6, 4, 6), `r${t}`); // 16 players, 6 advanced
+      for (const m of plan.matches.filter((x) => x.round === 1)) {
+        expect(m.participant_a?.startsWith('a') && m.participant_b?.startsWith('a')).toBeFalsy();
+      }
+    }
+  });
+
+  it('the draw within a level is still random', () => {
+    const a = generateDraw(field(4, 4, 8), 'x1').original.slots.map((s) => s.participant_id);
+    const b = generateDraw(field(4, 4, 8), 'x2').original.slots.map((s) => s.participant_id);
+    expect(a).not.toEqual(b);
+  });
+
+  it('manual seeds still take priority over levels', () => {
+    const f = field(2, 2, 4).map((p) => (p.id === 'b0' ? { ...p, seed: 1 as unknown as null } : p));
+    const plan = generateDraw(f, 'm');
+    expect(plan.original.slots[0].participant_id).toBe('b0');
+  });
+});

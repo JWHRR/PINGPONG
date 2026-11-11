@@ -5,12 +5,12 @@ import { useMemo, useState } from 'react';
 import { MatchDetail } from '@/components/bracket/MatchDetail';
 import { MatchRow } from '@/components/MatchRow';
 import { SetupNotice } from '@/components/SetupNotice';
-import { EmptyState, Modal, SkeletonBlock, SportIcon, cx } from '@/components/ui';
+import { EmptyState, LevelBadge, Modal, SkeletonBlock, SportIcon, cx } from '@/components/ui';
 import { useTournament } from '@/lib/data';
 import { roundName } from '@/lib/draw';
 import { initials } from '@/lib/format';
 import type { Match, Participant, Sport } from '@/lib/types';
-import { DISCIPLINE_LABEL, SPORT_LABEL } from '@/lib/types';
+import { LEVEL_LABEL, PLAYER_LEVELS, SPORT_LABEL } from '@/lib/types';
 
 /** Where a participant currently stands in their bracket. */
 function useStanding() {
@@ -40,7 +40,6 @@ export default function ParticipantsPage() {
   const [level, setLevel] = useState('all');
   const [profile, setProfile] = useState<Participant | null>(null);
 
-  const levels = useMemo(() => [...new Set(categories.map((c) => c.level))].sort(), [categories]);
   const visibleCategories = categories.filter((c) => sport === 'all' || c.sport === sport);
 
   const list = useMemo(() => {
@@ -51,7 +50,7 @@ export default function ParticipantsPage() {
         if (!c) return false;
         if (sport !== 'all' && c.sport !== sport) return false;
         if (categoryId !== 'all' && p.category_id !== categoryId) return false;
-        if (level !== 'all' && c.level !== level) return false;
+        if (level !== 'all' && p.level !== level) return false;
         if (!needle) return true;
         return [p.name, p.player1, p.player2, p.club].some((s) => s?.toLowerCase().includes(needle));
       })
@@ -83,7 +82,7 @@ export default function ParticipantsPage() {
               <option value="badminton">Badminton</option>
             </select>
             <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} aria-label="Category">
-              <option value="all">All categories</option>
+              <option value="all">All tournaments</option>
               {visibleCategories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -92,9 +91,9 @@ export default function ParticipantsPage() {
             </select>
             <select className="input" value={level} onChange={(e) => setLevel(e.target.value)} aria-label="Level">
               <option value="all">All levels</option>
-              {levels.map((l) => (
+              {PLAYER_LEVELS.map((l) => (
                 <option key={l} value={l}>
-                  {l}
+                  {LEVEL_LABEL[l]}
                 </option>
               ))}
             </select>
@@ -139,10 +138,13 @@ export default function ParticipantsPage() {
                     </div>
                     <div className="flex items-center gap-1 truncate text-xs text-slate-500">
                       <SportIcon sport={c.sport} className="h-3 w-3 shrink-0" />
-                      {DISCIPLINE_LABEL[c.discipline]} · {c.level}
+                      {c.name}
                       {p.club ? ` · ${p.club}` : ''}
                     </div>
-                    <StandingPill {...s} />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <LevelBadge level={p.level} className="mt-1.5" />
+                      <StandingPill {...s} />
+                    </div>
                   </div>
                 </button>
               );
@@ -198,7 +200,10 @@ function Profile({ participant, onClose }: { participant: Participant | null; on
               {participant.club ? ` · ${participant.club}` : ''}
               {participant.seed ? ` · Seed ${participant.seed}` : ''}
             </div>
-            <StandingPill {...standing(participant)} />
+            <div className="flex flex-wrap items-center gap-1.5">
+              <LevelBadge level={participant.level} className="mt-1.5" />
+              <StandingPill {...standing(participant)} />
+            </div>
           </div>
           <div className="flex gap-4 text-center">
             <div>

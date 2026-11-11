@@ -2,8 +2,34 @@
 
 import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-react';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { MatchStatus, Sport } from '@/lib/types';
-import { MATCH_STATUS_LABEL } from '@/lib/types';
+import type { MatchStatus, PlayerLevel, Sport } from '@/lib/types';
+import { LEVEL_LABEL, MATCH_STATUS_LABEL } from '@/lib/types';
+
+export const LEVEL_STYLE: Record<PlayerLevel, { badge: string; letter: string }> = {
+  advanced: { badge: 'bg-gold-100 text-gold-600 ring-gold-300', letter: 'bg-gold-400 text-navy-950' },
+  intermediate: { badge: 'bg-sky-50 text-sky-700 ring-sky-200', letter: 'bg-sky-500 text-white' },
+  beginner: { badge: 'bg-slate-100 text-slate-600 ring-slate-200', letter: 'bg-slate-300 text-navy-800' },
+};
+
+export function LevelBadge({ level, className }: { level: PlayerLevel; className?: string }) {
+  return (
+    <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset', LEVEL_STYLE[level].badge, className)}>
+      {LEVEL_LABEL[level]}
+    </span>
+  );
+}
+
+/** One-letter level marker (A / I / B) for tight spaces like bracket cards. */
+export function LevelLetter({ level, className }: { level: PlayerLevel; className?: string }) {
+  return (
+    <span
+      title={LEVEL_LABEL[level]}
+      className={cx('inline-flex h-4 w-4 items-center justify-center rounded text-[9px] font-bold', LEVEL_STYLE[level].letter, className)}
+    >
+      {LEVEL_LABEL[level][0]}
+    </span>
+  );
+}
 
 export function cx(...v: (string | false | null | undefined)[]) {
   return v.filter(Boolean).join(' ');

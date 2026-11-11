@@ -146,7 +146,11 @@ function DrawView() {
                     <li key={s.position} className="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1 text-xs">
                       <span className="w-6 text-right font-mono text-slate-400">{s.position + 1}</span>
                       <span className={s.name ? 'font-medium text-navy-800' : 'italic text-slate-400'}>{s.name ?? 'BYE'}</span>
-                      {s.seed ? <span className="ml-auto text-[10px] font-bold text-navy-400">seed {s.seed}</span> : null}
+                      {s.seed ? (
+                        <span className="ml-auto text-[10px] font-bold text-navy-400">seed {s.seed}</span>
+                      ) : s.level ? (
+                        <span className="ml-auto text-[10px] font-semibold uppercase text-slate-400">{s.level}</span>
+                      ) : null}
                     </li>
                   ))}
                 </ol>

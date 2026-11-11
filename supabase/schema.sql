@@ -72,10 +72,22 @@ create table if not exists public.participants (
   player2      text,
   club         text,
   seed         int check (seed is null or seed > 0),
+  level        text not null default 'beginner'
+               check (level in ('beginner', 'intermediate', 'advanced')),
   notes        text,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
+-- For databases created before player levels existed
+alter table public.participants add column if not exists level text not null default 'beginner';
+do $
+begin
+  if not exists (select 1 from pg_constraint where conname = 'participants_level_check') then
+    alter table public.participants add constraint participants_level_check
+      check (level in ('beginner', 'intermediate', 'advanced'));
+  end if;
+end $;
+
 create unique index if not exists participants_unique_name_per_category
   on public.participants (category_id, lower(trim(name)));
 create unique index if not exists participants_unique_seed_per_category
